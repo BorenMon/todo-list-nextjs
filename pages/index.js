@@ -15,7 +15,7 @@ export default function Home() {
 
   async function onDeleteHandler(id){
     try {
-      await api.delete(`todo/${id}`)
+      await api.delete(`api/todo/${id}`)
     } catch(error) {
       console.log(error)
     }
@@ -30,7 +30,7 @@ export default function Home() {
   async function onUpdateHandler(){
     if(currentEditingID) {
       try {
-        await api.put(`todo/${currentEditingID}`, {todo: input})
+        await api.put(`api/todo/${currentEditingID}`, {todo: input})
         setIsEditing(false)
         setInput('')
       } catch(error) {
@@ -41,7 +41,7 @@ export default function Home() {
 
   async function onToggleComplete(id, prev){
     try {
-      await api.put(`todo/${id}`, {isStatusChanged: true, prevStatus: prev})
+      await api.put(`api/todo/${id}`, {isStatusChanged: true, prevStatus: prev})
     } catch(error) {
       console.log(error)
     }
@@ -51,7 +51,7 @@ export default function Home() {
     if(todoList.filter(x => x.todo == input).length > 0) alert('You can\'t add duplicates!')
     else if (input) {
       try {
-        const {data} = await api.post('/todo', {todo: input})
+        const {data} = await api.post('api/todo', {todo: input})
         setTodoList(todoList.concat(data.data))
         setInput('')
       } catch(error) {
@@ -61,7 +61,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    api.get('/todo').then(({data}) => {
+    api.get('api/todo').then(({data}) => {
       setTodoList(data.data)
     })
   }, [todoList])
