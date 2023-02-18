@@ -62,10 +62,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    setIsLoading(true)
+    // setIsLoading(true)
     api.get('api/todo').then(({data}) => {
       setTodoList(data.data)
-      setIsLoading(false)
+      // setIsLoading(false)
     })
   }, [todoList])
 
@@ -105,7 +105,7 @@ export default function Home() {
         </div>
         {todoList.length != 0 && (
           <ul className="mt-4 space-y-2">
-            {isLoading && <p>Loading...</p>}
+            {isLoading && <p className='text-center'>Loading...</p>}
             {
               !isLoading && !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
                 <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
