@@ -78,14 +78,14 @@ export default function Home() {
 
   return (
     <div className="app">
-      <div className="bg-white p-6 w-96 shadow rounded">
+      <div className="bg-white p-6 w-[95%] shadow rounded" style={{ maxWidth: "24rem" }}>
         <h1 className="text-2xl font-bold">Todo List</h1>
         <div className="mt-4 flex space-x-2">
           <input
             value={input}
             onInput={e => onInputHandler(e.target.value)}
             type="text"
-            className="rounded flex-1 border-2 px-4 py-2 focus:outline-none focus:border-violet-500"
+            className="rounded flex-1 border-2 px-4 py-2 focus:outline-none focus:border-violet-500 w-fit min-w-0"
           />
           {isEditing && (
             <button className="rounded w-12 h-12 bg-slate-500 active:scale-95 hover:bg-slate-600 text-white" onClick={() => {setIsEditing(false); setCurrentEditingID(''); setInput('')}}>
