@@ -8,6 +8,7 @@ export default function Home() {
   const [noMatch, setNoMatch] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentEditingID, setCurrentEditingID] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   function onInputHandler(value){
     setInput(value)
@@ -61,8 +62,10 @@ export default function Home() {
   }
 
   useEffect(() => {
+    setIsLoading(true)
     api.get('api/todo').then(({data}) => {
       setTodoList(data.data)
+      setIsLoading(false)
     })
   }, [todoList])
 
@@ -102,8 +105,9 @@ export default function Home() {
         </div>
         {todoList.length != 0 && (
           <ul className="mt-4 space-y-2">
+            {isLoading && <p>Loading...</p>}
             {
-              !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
+              !isLoading && !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
                 <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
               ))
             }
