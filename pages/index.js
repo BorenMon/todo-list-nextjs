@@ -62,11 +62,11 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // setIsLoading(true)
+    setIsLoading(true)
     api.get('api/todo').then(({data}) => {
       setTodoList(data.data)
-      // setIsLoading(false)
     })
+    setIsLoading(false)
   }, [todoList])
 
   useEffect(() => {
