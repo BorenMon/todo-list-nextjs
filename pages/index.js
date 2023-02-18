@@ -51,6 +51,7 @@ export default function Home() {
   async function add() {
     if(todoList.filter(x => x.todo == input).length > 0) alert('You can\'t add duplicates!')
     else if (input) {
+      setIsLoading(true)
       try {
         const {data} = await api.post('api/todo', {todo: input})
         setTodoList(todoList.concat(data.data))
@@ -58,6 +59,7 @@ export default function Home() {
       } catch(error) {
         console.log(error)
       }
+      setIsLoading(false)
     }
   }
 
