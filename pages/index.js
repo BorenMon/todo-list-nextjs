@@ -8,7 +8,6 @@ export default function Home() {
   const [noMatch, setNoMatch] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentEditingID, setCurrentEditingID] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
 
   function onInputHandler(value){
     setInput(value)
@@ -51,7 +50,6 @@ export default function Home() {
   async function add() {
     if(todoList.filter(x => x.todo == input).length > 0) alert('You can\'t add duplicates!')
     else if (input) {
-      setIsLoading(true)
       try {
         const {data} = await api.post('api/todo', {todo: input})
         setTodoList(todoList.concat(data.data))
@@ -59,16 +57,13 @@ export default function Home() {
       } catch(error) {
         console.log(error)
       }
-      setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    setIsLoading(true)
     api.get('api/todo').then(({data}) => {
       setTodoList(data.data)
     })
-    setIsLoading(false)
   }, [todoList])
 
   useEffect(() => {
@@ -107,9 +102,8 @@ export default function Home() {
         </div>
         {todoList.length != 0 && (
           <ul className="mt-4 space-y-2">
-            {isLoading && <p className='text-center'>Loading...</p>}
             {
-              !isLoading && !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
+              !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
                 <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
               ))
             }
