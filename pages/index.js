@@ -8,16 +8,27 @@ export default function Home() {
   const [noMatch, setNoMatch] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [currentEditingID, setCurrentEditingID] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  function getData(){
+    api.get('api/todo').then(({data}) => {
+      setTodoList(data.data)
+      setLoading(false)
+    })
+  }
 
   function onInputHandler(value){
     setInput(value)
   }
 
   async function onDeleteHandler(id){
+    setLoading(true)
     try {
       await api.delete(`api/todo/${id}`)
+      getData()
     } catch(error) {
       console.log(error)
+      setLoading(false)
     }
   }
 
@@ -29,12 +40,15 @@ export default function Home() {
 
   async function onUpdateHandler(){
     if(currentEditingID) {
+      setLoading(true)
       try {
         await api.put(`api/todo/${currentEditingID}`, {todo: input})
         setIsEditing(false)
         setInput('')
+        getData()
       } catch(error) {
         console.log(error)
+        setLoading(false)
       }
     }
   }
@@ -42,6 +56,7 @@ export default function Home() {
   async function onToggleComplete(id, prev){
     try {
       await api.put(`api/todo/${id}`, {isStatusChanged: true, prevStatus: prev})
+      getData()
     } catch(error) {
       console.log(error)
     }
@@ -50,21 +65,23 @@ export default function Home() {
   async function add() {
     if(todoList.filter(x => x.todo == input).length > 0) alert('You can\'t add duplicates!')
     else if (input) {
+      setLoading(true)
       try {
         const {data} = await api.post('api/todo', {todo: input})
         setTodoList(todoList.concat(data.data))
         setInput('')
+        getData()
       } catch(error) {
         console.log(error)
+        setLoading(false)
       }
     }
   }
 
   useEffect(() => {
-    api.get('api/todo').then(({data}) => {
-      setTodoList(data.data)
-    })
-  }, [todoList])
+    setLoading(true)
+    getData()
+  }, [])
 
   useEffect(() => {
     if(input && !isEditing) {
@@ -100,10 +117,11 @@ export default function Home() {
             {isEditing && <i className="fa-solid fa-floppy-disk"></i>}
           </button>
         </div>
+        {loading && <p>Loading...</p>}
         {todoList.length != 0 && (
           <ul className="mt-4 space-y-2">
             {
-              !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
+              !loading && !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
                 <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
               ))
             }
