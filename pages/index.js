@@ -1,6 +1,7 @@
 import ListItem from '@/components/ListItem'
 import { useEffect, useState } from 'react'
 import api from '@/services/api'
+import {Accordion} from 'flowbite-react'
 
 export default function Home() {
   const [input, setInput] = useState('')
@@ -9,6 +10,10 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false)
   const [currentEditingID, setCurrentEditingID] = useState('')
   const [loading, setLoading] = useState(false)
+  
+  const filteredTodos = todoList.filter(x => {
+    return x.todo.toLowerCase().trim().includes(input.toLowerCase().trim())
+  })
 
   function getData(){
     api.get('api/todo').then(({data}) => {
@@ -22,13 +27,15 @@ export default function Home() {
   }
 
   async function onDeleteHandler(id){
-    setLoading(true)
-    try {
-      await api.delete(`api/todo/${id}`)
-      getData()
-    } catch(error) {
-      console.log(error)
-      setLoading(false)
+    if(confirm('Are you sure to delete this one?')) {
+      setLoading(true)
+      try {
+        await api.delete(`api/todo/${id}`)
+        getData()
+      } catch(error) {
+        console.log(error)
+        setLoading(false)
+      }
     }
   }
 
@@ -42,12 +49,14 @@ export default function Home() {
     if(currentEditingID) {
       setLoading(true)
       try {
-        await api.put(`api/todo/${currentEditingID}`, {todo: input})
+        await api.put(`api/todo/${currentEditingID}, {todo: input}`)
         setIsEditing(false)
         setInput('')
         getData()
-      } catch(error) {
-        console.log(error)
+      } catch({response}) {
+        const errorCode = response.data.error.code
+        if(errorCode === 11000) alert('The value is unavailable!')
+        console.log(errorCode)
         setLoading(false)
       }
     }
@@ -63,7 +72,7 @@ export default function Home() {
   }
 
   async function add() {
-    if(todoList.filter(x => x.todo == input).length > 0) alert('You can\'t add duplicates!')
+    if(todoList.filter(x => x.todo.toLowerCase().includes(input.toLowerCase())).length > 0) alert('You can\'t add duplicates!')
     else if (input) {
       setLoading(true)
       try {
@@ -85,14 +94,18 @@ export default function Home() {
 
   useEffect(() => {
     if(input && !isEditing) {
-      if(todoList.filter(x => x.todo.includes(input)).length == 0){
-        setNoMatch(true)
-      } else setNoMatch(false)
+      // todoList.forEach(x => {
+      //   console.log((x.todo).trim().toLowerCase().includes((input.trim()).toLowerCase()))
+      // })
+      console.log(filteredTodos)
+      // if(filteredTodos.filter(x => x.todo.includes(input)).length == 0){
+      //   setNoMatch(true)
+      // } else 
+      setNoMatch(filteredTodos.length == 0)
     } else {
       setNoMatch(false)
     }
   }, [input])
-
   return (
     <div className="app">
       <div className="bg-white p-6 w-[95%] shadow rounded" style={{ maxWidth: "24rem" }}>
@@ -117,18 +130,38 @@ export default function Home() {
             {isEditing && <i className="fa-solid fa-floppy-disk"></i>}
           </button>
         </div>
-        {loading && <p>Loading...</p>}
+        {loading && <p className="mt-4">Loading...</p>}
         {todoList.length != 0 && (
-          <ul className="mt-4 space-y-2">
-            {
-              !loading && !noMatch && !isEditing && todoList.filter(x => x.todo.includes(input)).map(todo => (
-                <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
-              ))
-            }
-            {
-              noMatch && <p className="text-center">No result. Create a new one instead!</p>
-            }
-          </ul>
+          <>
+            <ul className="mt-4 space-y-2">
+              {
+                !loading && !noMatch && !isEditing && filteredTodos.sort(function(a, b) {
+                  return new Date(b.createdAt) - new Date(a.createdAt)
+                }).filter(x => !x.isCompleted).map(todo => (
+                  <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
+                ))
+              }
+              {
+                noMatch && <p className="text-center">No result. Create a new one instead!</p>
+              }
+            </ul>
+            <Accordion alwaysOpen={true} className="mt-4">
+              <Accordion.Panel>
+                <Accordion.Title>
+                  Completed
+                </Accordion.Title>
+                <Accordion.Content className='space-y-2'>
+                {
+                  !loading && !noMatch && !isEditing && filteredTodos.sort(function(a, b) {
+                    return new Date(b.createdAt) - new Date(a.createdAt)
+                  }).filter(x => x.isCompleted).map(todo => (
+                    <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
+                  ))
+                }
+                </Accordion.Content>
+              </Accordion.Panel>
+            </Accordion>
+          </>
         )}
       </div>
     </div>

@@ -10,7 +10,10 @@ const ListItem = ({ list, handleDelete, handleEdit, handleComplete }) => {
       className="h-12 bg-slate-100 rounded flex cursor-pointer items-center"
     >
       <span className={`flex flex-1 items-center px-4 truncate ${list.isCompleted ? 'line-through' : ''}`}>
-        {list.todo}
+        <div className='flex flex-col'>
+          <span>{list.todo}</span>
+          {!list.isCompleted && <span className='text-xs'>{(new Date(list.createdAt)).toLocaleDateString("en-US")}</span>}
+        </div>
       </span>
       {isShown && (
         <>
@@ -27,6 +30,6 @@ const ListItem = ({ list, handleDelete, handleEdit, handleComplete }) => {
       )}
     </li>
   );
-};
+}
 
 export default ListItem;
