@@ -145,22 +145,24 @@ export default function Home() {
                 noMatch && <p className="text-center">No result. Create a new one instead!</p>
               }
             </ul>
-            <Accordion alwaysOpen={true} className="mt-4">
-              <Accordion.Panel>
-                <Accordion.Title>
-                  Completed
-                </Accordion.Title>
-                <Accordion.Content className='space-y-2'>
-                {
-                  !loading && !noMatch && !isEditing && filteredTodos.sort(function(a, b) {
-                    return new Date(b.createdAt) - new Date(a.createdAt)
-                  }).filter(x => x.isCompleted).map(todo => (
-                    <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
-                  ))
-                }
-                </Accordion.Content>
-              </Accordion.Panel>
-            </Accordion>
+            {!loading && !noMatch && !isEditing &&
+              <Accordion alwaysOpen={true} className="mt-4">
+                <Accordion.Panel>
+                  <Accordion.Title>
+                    Completed
+                  </Accordion.Title>
+                  <Accordion.Content className='space-y-2'>
+                  {
+                    filteredTodos.sort(function(a, b) {
+                      return new Date(b.createdAt) - new Date(a.createdAt)
+                    }).filter(x => x.isCompleted).map(todo => (
+                      <ListItem list={todo} key={todo._id} handleDelete={onDeleteHandler} handleEdit={onEditHandler} handleComplete={onToggleComplete} />
+                    ))
+                  }
+                  </Accordion.Content>
+                </Accordion.Panel>
+              </Accordion>
+            }
           </>
         )}
       </div>
